@@ -1,0 +1,42 @@
+http:
+  port: 8080
+apiEndpoints:
+  node:
+    port: 3030
+    host: localhost
+    paths: /node/*
+  dotnet:
+    port: 44300
+    host: localhost
+    paths: /dotnet/*
+serviceEndpoints:
+  node:
+    url: 'http://localhost:3030'
+  dotnet:
+    url: 'http://localhost:44300'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  - name: node
+    apiEndpoints:
+      - node
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: node 
+              changeOrigin: true
+  - name: dotnet
+    apiEndpoints:
+      - dotnet
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: dotnet 
+              changeOrigin: true
