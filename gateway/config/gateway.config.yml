@@ -4,7 +4,7 @@ apiEndpoints:
   node:
     port: 3030
     host: localhost
-    paths: /node/*
+    paths: /comment/*
   dotnet:
     port: 44300
     host: localhost
