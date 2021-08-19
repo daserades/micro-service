@@ -1,3 +1,6 @@
+using dotnet.Context;
+using dotnet.Services;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,6 +29,10 @@ namespace dotnet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddSingleton<DbContext>();
+            services.AddSingleton<IMapper, Mapping.Mapper>();
+            services.AddSingleton<IProductService, ProductService>();
 
             services.AddCors(o =>
             {

@@ -8,7 +8,7 @@ apiEndpoints:
   dotnet:
     port: 44300
     host: localhost
-    paths: /dotnet/*
+    paths: /product/*
 serviceEndpoints:
   node:
     url: 'http://localhost:3030'

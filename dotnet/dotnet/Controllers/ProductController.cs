@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using dotnet.Models;
+using dotnet.Models.Dto;
+using dotnet.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -8,34 +11,81 @@ using System.Threading.Tasks;
 namespace dotnet.Controllers
 {
     [ApiController]
-    [Route("dotnet/product")]
+    [Route("product")]
     public class ProductController : ControllerBase
     {
-        private static readonly string[] Titles = new[]
+        private readonly IProductService _products;
+        public ProductController(IProductService products)
         {
-            "Iphone 5", "Xbox One", "Macbook Pro", "Galaxy S20", "MSI Ghost Pro", "Lenovo V15", "Logitech G29", "Xiaomi Note 10 Pro", "Ipad Pro", "Samsung Evo 1TB"
-        };
-
-        private readonly ILogger<ProductController> _logger;
-
-        public ProductController(ILogger<ProductController> logger)
-        {
-            _logger = logger;
+            _products = products;
         }
 
         [HttpGet]
-        public IEnumerable<Product> Get()
+        [Route("all")]
+        public IActionResult Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, Titles.Length).Select(index => new Product
+            List<ProductPreviewDto> products;
+            try
             {
-                Id = index,
-                Price = rng.Next(800,1001),
-                Date = DateTime.Now,
-                Rating = rng.Next(1,6),
-                Title = Titles[index - 1]
-            })
-            .ToArray();
+                products = _products.GetAll();
+            }
+            catch
+            {
+                return StatusCode(500);                
+            }
+
+            if (products == null)
+                return NotFound("No products found!");
+
+            return Ok(products);
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public IActionResult GetOne(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest("Please provide valid id");
+
+            Product product;
+
+            try
+            {
+                product = _products.GetOne(id);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+
+            if (product == null)
+                return NotFound("Product not found!");
+
+            return Ok(product);
+        }
+
+        [HttpGet]
+        [Route("search/{q}")]
+        public IActionResult Search(string q)
+        {
+            if (string.IsNullOrEmpty(q))
+                return BadRequest("Please provide valid string to search");
+
+            List<ProductPreviewDto> product;
+
+            try
+            {
+                product = _products.Search(q);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+
+            if (product == null)
+                return NotFound("Product not found!");
+
+            return Ok(product);
         }
     }
 }
